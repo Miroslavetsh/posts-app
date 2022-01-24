@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Post component renders a div that contains an <a> tag with href and title in 1`] = `
+<div
+  class="sc-bdvvtL eIoWgC"
+>
+  <a
+    href="/1"
+  >
+    Uchiha Itachi
+  </a>
+</div>
+`;

@@ -3,26 +3,25 @@ import styled from 'styled-components'
 
 import IPost from '../models/Post'
 
-interface RecipePropTypes {
-  id: number
+export interface PostPropTypes {
   post: IPost
 }
 
-interface StyledRecipePropTypes {
+interface StyledPostPropTypes {
   textColor: string
 }
 
-const StyledRecipe = styled.div<StyledRecipePropTypes>`
+const StyledPost = styled.div<StyledPostPropTypes>`
   background: #000;
   color: ${({ textColor }) => (textColor ? textColor : '#000')}; ;
 `
 
-const Recipe: React.FC<RecipePropTypes> = (props) => {
+const Post: React.FC<PostPropTypes> = ({ post }) => {
   return (
-    <StyledRecipe textColor='#fff'>
-      <Link href={`/${props.id}`}>{props.post.title}</Link>
-    </StyledRecipe>
+    <StyledPost textColor='#fff'>
+      <Link href={`/${post.id}`}>{post.title}</Link>
+    </StyledPost>
   )
 }
 
-export default Recipe
+export default Post
