@@ -1,41 +1,69 @@
+import styled, { ThemeProvider } from 'styled-components'
 import type { GetStaticProps, NextPage } from 'next'
 import axios from 'axios'
 
-import IRecipe from '../models/Recipe'
+import IPost from '../models/Post'
+import ThemeColors from '../models/ThemeColors'
 
-import Recipe from '../components/Recipe'
+import Post from '../components/Post'
 
 interface HomePropTypes {
-  recipes: Array<{ recipe: IRecipe }>
+  posts: Array<IPost>
 }
 
-const Home: NextPage<HomePropTypes> = ({ recipes }) => {
+interface StyledPagePropTypes {
+  theme: {
+    maxWidth: string
+    light: {
+      background: ThemeColors.LIGHT_BACKGROUND
+      color: ThemeColors.LIGHT_TEXT_COLOR
+    }
+    dark: {
+      background: ThemeColors.DARK_BACKGROUND
+      color: ThemeColors.DARK_TEXT_COLOR
+    }
+  }
+}
+
+const StyledPage = styled.div<StyledPagePropTypes>`
+  margin: 0 auto;
+  max-width: ${(props) => props.theme.maxWidth};
+  background-color: ${(props) => props.theme.light.background};
+  color: ${(props) => props.theme.light.color}; ;
+`
+
+const theme = {
+  maxWidth: '1218px',
+  light: {
+    background: ThemeColors.LIGHT_BACKGROUND,
+    color: ThemeColors.LIGHT_TEXT_COLOR,
+  },
+  dark: {
+    background: ThemeColors.DARK_BACKGROUND,
+    color: ThemeColors.DARK_TEXT_COLOR,
+  },
+}
+
+const Home: NextPage<HomePropTypes> = ({ posts }) => {
   return (
-    <div>
-      {recipes.map(({ recipe }) => (
-        <Recipe key={recipe.uri} recipe={recipe} />
-      ))}
-    </div>
+    <ThemeProvider theme={theme}>
+      <StyledPage>
+        {posts.map((post) => (
+          <Post id={post.id} key={post.title} post={post} />
+        ))}
+      </StyledPage>
+    </ThemeProvider>
   )
 }
 
 export default Home
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const { data } = await axios.get('https://api.edamam.com/search', {
-    params: {
-      q: 'pizza',
-      from: 0,
-      to: 10,
-      more: false,
-      app_key: process.env.NEXT_PUBLIC_APP_KEY,
-      app_id: process.env.NEXT_PUBLIC_APP_ID,
-    },
-  })
+  const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}`)
 
   return {
     props: {
-      recipes: data.hits,
+      posts: data,
     },
   }
 }
