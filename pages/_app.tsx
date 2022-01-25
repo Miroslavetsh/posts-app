@@ -10,6 +10,14 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     box-sizing: border-box;
   }
+
+  body {
+    padding: 2em 0;
+  }
+
+  a {
+    color: inherit;
+  }
 `
 
 function App({ Component, pageProps }: AppProps) {
