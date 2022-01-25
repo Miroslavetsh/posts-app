@@ -1,5 +1,8 @@
+import { Provider } from 'react-redux'
 import type { AppProps } from 'next/app'
 import { createGlobalStyle } from 'styled-components'
+import { createWrapper } from 'next-redux-wrapper'
+import store from '../redux/store'
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -9,13 +12,16 @@ const GlobalStyle = createGlobalStyle`
   }
 `
 
-function MyApp({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <Provider store={store}>
       <GlobalStyle />
       <Component {...pageProps} />
-    </>
+    </Provider>
   )
 }
 
-export default MyApp
+const makeStore = () => store
+const wrapper = createWrapper(makeStore, { debug: true })
+
+export default wrapper.withRedux(App)
