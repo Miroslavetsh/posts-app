@@ -1,9 +1,11 @@
 import type { GetServerSideProps, NextPage } from 'next'
-import axios from 'axios'
 
 import IPost from '../models/Post'
-import styled from 'styled-components'
+import styled, { ThemeProvider } from 'styled-components'
 import Container from '../components/Container'
+import { ApolloClient, gql, InMemoryCache } from '@apollo/client'
+import { useSelector } from 'react-redux'
+import { RootState } from '../redux/reducers'
 
 interface HomePropTypes {
   post: IPost
@@ -23,15 +25,21 @@ const StyledSupTitle = styled.p`
 `
 
 const PostPage: NextPage<HomePropTypes> = ({ post }) => {
-  console.log(post)
+  const { theme } = useSelector<RootState, { theme: { background: string; color: string } }>(
+    (theme) => ({
+      ...theme,
+    }),
+  )
 
   return (
-    <Container>
-      <StyledSupTitle>Body: {post.body}</StyledSupTitle>
-      <StyledTitle>Title: {post.title}</StyledTitle>
+    <ThemeProvider theme={{ ...theme }}>
+      <Container theme={theme}>
+        <StyledSupTitle>Body: {post.body}</StyledSupTitle>
+        <StyledTitle>Title: {post.title}</StyledTitle>
 
-      <pre>{JSON.stringify(post, null, 2)}</pre>
-    </Container>
+        <pre>{JSON.stringify(post, null, 2)}</pre>
+      </Container>
+    </ThemeProvider>
   )
 }
 
@@ -40,9 +48,23 @@ export default PostPage
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const id = (context.params as { id: string }).id
 
-  console.log(process.env.VERCEL_URL)
+  const client = new ApolloClient({
+    uri: process.env.NEXT_PUBLIC_API_URL,
+    cache: new InMemoryCache(),
+  })
 
-  const { data } = await axios.get(process.env.VERCEL_URL + '/api/posts/' + id)
+  const { data } = await client.query({
+    query: gql`
+      query {
+        post(id: ${id}) {
+          id
+          title
+          body
+        }
+      }
+    `,
+  })
+
   const { post } = data
   return {
     props: { post },

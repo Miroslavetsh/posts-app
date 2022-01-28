@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Dispatch } from 'redux'
 import * as Sentry from '@sentry/nextjs'
 
-import axios from 'axios'
 import styled, { ThemeProvider } from 'styled-components'
 
 import IPost from '../models/Post'
@@ -12,6 +11,7 @@ import Post from '../components/Post'
 import Container from '../components/Container'
 import { setLightTheme, setDarkTheme } from '../redux/actions/theme'
 import { RootState } from '../redux/reducers'
+import { ApolloClient, gql, InMemoryCache } from '@apollo/client'
 
 interface HomePropTypes {
   posts: Array<IPost>
@@ -72,8 +72,32 @@ const Home: NextPage<HomePropTypes> = ({ posts }) => {
 
 export default Home
 
-export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await axios.get(process.env.VERCEL_URL + '/api/posts')
+export const getStaticProps: GetStaticProps = async (context) => {
+  const client = new ApolloClient({
+    uri: process.env.NEXT_PUBLIC_API_URL,
+    cache: new InMemoryCache(),
+  })
+
+  const { data } = await client.query({
+    query: gql`
+      query ($options: PageQueryOptions) {
+        posts(options: $options) {
+          data {
+            id
+            title
+          }
+        }
+      }
+    `,
+    variables: {
+      options: {
+        paginate: {
+          page: 1,
+          limit: 15,
+        },
+      },
+    },
+  })
 
   return {
     props: {
