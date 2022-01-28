@@ -2,6 +2,7 @@ import type { GetStaticProps, NextPage } from 'next'
 import { useDispatch, useSelector } from 'react-redux'
 import { Dispatch } from 'redux'
 import * as Sentry from '@sentry/nextjs'
+
 import axios from 'axios'
 import styled, { ThemeProvider } from 'styled-components'
 
@@ -37,11 +38,7 @@ const Home: NextPage<HomePropTypes> = ({ posts }) => {
   }
 
   Sentry.init({
-    dsn: 'https://7ed1b1c0b5824e09bfa6b2a6632f2f43@o1125972.ingest.sentry.io/6166483',
-
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
+    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
     tracesSampleRate: 1.0,
   })
 
@@ -66,7 +63,7 @@ const Home: NextPage<HomePropTypes> = ({ posts }) => {
           onClick={() => {
             throw new Error('Sentry Frontend Error')
           }}>
-          Throw error
+          Throw error for Sentry
         </button>
       </ThemeProvider>
     </Container>
@@ -76,11 +73,11 @@ const Home: NextPage<HomePropTypes> = ({ posts }) => {
 export default Home
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}`)
+  const { data } = await axios.get(process.env.VERCEL_URL + '/api/posts')
 
   return {
     props: {
-      posts: data,
+      posts: data.posts.data,
     },
   }
 }

@@ -23,6 +23,8 @@ const StyledSupTitle = styled.p`
 `
 
 const PostPage: NextPage<HomePropTypes> = ({ post }) => {
+  console.log(post)
+
   return (
     <Container>
       <StyledSupTitle>Body: {post.body}</StyledSupTitle>
@@ -38,9 +40,11 @@ export default PostPage
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const id = (context.params as { id: string }).id
 
-  const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/${id}`)
+  console.log(process.env.VERCEL_URL)
 
+  const { data } = await axios.get(process.env.VERCEL_URL + '/api/posts/' + id)
+  const { post } = data
   return {
-    props: { post: data },
+    props: { post },
   }
 }
